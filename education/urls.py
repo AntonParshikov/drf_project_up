@@ -4,10 +4,10 @@ from education.apps import EducationConfig
 from education.views import CourseViewSet, LessonListView, LessonDetailView, LessonCreateView, LessonUpdateView, \
     LessonDeleteView
 
-app_name = EducationConfig
+app_name = EducationConfig.name
 
 router = DefaultRouter()
-router.register('course', CourseViewSet)
+router.register(r'course', CourseViewSet, basename='course')
 
 urlpatterns = [
                   path('', LessonListView.as_view()),
