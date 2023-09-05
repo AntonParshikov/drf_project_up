@@ -60,13 +60,14 @@ class LessonDetailSerializer(serializers.ModelSerializer):
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ('user', 'payment_date', 'paid_course', 'paid_lesson', 'payment_amount', 'payment_method')
+        fields = ('pk', 'user', 'payment_date', 'paid_course', 'paid_lesson', 'payment_amount', 'payment_method')
 
 
 class PaymentListSerializer(serializers.ModelSerializer):
     user = SlugRelatedField(slug_field='email', queryset=User.objects.all())
     paid_course = SlugRelatedField(slug_field='title', queryset=Course.objects.all())
     paid_lesson = SlugRelatedField(slug_field='title', queryset=Lesson.objects.all())
+
     class Meta:
         model = Payment
         fields = ('pk', 'user', 'payment_date', 'paid_course', 'paid_lesson', 'payment_amount', 'payment_method')
