@@ -34,15 +34,16 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ('pk', 'title', 'preview', 'course_lesson')
+        fields = ('pk', 'title', 'preview', 'link', 'course_lesson', 'buyer')
 
 
 class LessonListSerializer(serializers.ModelSerializer):
     course_lesson = SlugRelatedField(slug_field='title', queryset=Course.objects.all())
+    buyer = SlugRelatedField(slug_field='email', queryset=User.objects.all())
 
     class Meta:
         model = Lesson
-        fields = ('pk', 'title', 'preview', 'course_lesson')
+        fields = ('pk', 'title', 'preview', 'link', 'course_lesson', 'buyer')
 
 
 class LessonDetailSerializer(serializers.ModelSerializer):

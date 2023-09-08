@@ -1,17 +1,17 @@
 from django.urls import path
-from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 from users.apps import UsersConfig
-from users.views import UserListView, UserCreateView
+from users.views import UserListView
 
 app_name = UsersConfig.name
 
-
 urlpatterns = [
-                  path('user/', UserListView.as_view()),
-                  # path('lesson/<int:pk>/', LessonDetailView.as_view()),
-                  # path('lesson/update/<int:pk>/', LessonUpdateView.as_view()),
-                  path('user/create/', UserCreateView.as_view()),
-                  # path('lesson/delete/<int:pk>/', LessonDeleteView.as_view()),
-                  # path('payment/', PaymentListView.as_view()),
+    path('', UserListView.as_view()),
+    # path('lesson/<int:pk>/', LessonDetailView.as_view()),
+    # path('lesson/delete/<int:pk>/', LessonDeleteView.as_view()),
+    # path('payment/', PaymentListView.as_view()),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-              ]
+]
