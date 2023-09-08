@@ -22,10 +22,10 @@ class Lesson(models.Model):
     preview = models.ImageField(upload_to='education/', **NULLABLE, verbose_name='превью')
     link = models.URLField(verbose_name='ссылка на видео')
     course_lesson = models.ForeignKey(Course, **NULLABLE, on_delete=models.CASCADE, verbose_name='Урок курса')
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, **NULLABLE, verbose_name='Покупатель урока')
 
     def __str__(self):
         return f'{self.title}: {self.link}'
-
 
     class Meta:
         verbose_name = 'Урок'
@@ -42,7 +42,6 @@ class Payment(models.Model):
 
     def __str__(self):
         return f'{self.user}: {self.paid_course} - {self.payment_amount}'
-
 
     class Meta:
         verbose_name = 'Платеж'
