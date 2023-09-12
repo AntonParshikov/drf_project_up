@@ -6,6 +6,7 @@ from users.models import UserRoles
 
 class IsModerator(BasePermission):
     message = "Вы не являетесь модератором!"
+
     def has_permission(self, request, view):
         if request.user.role == UserRoles.moderator:
             return True
@@ -14,6 +15,7 @@ class IsModerator(BasePermission):
 
 class IsBuyer(BasePermission):
     message = "Вы не являетесь владельцем!"
+
     def has_object_permission(self, request, view, obj):
         if request.user == obj.buyer:
             return True
