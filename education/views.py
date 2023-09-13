@@ -55,7 +55,7 @@ class LessonUpdateView(UpdateAPIView):
 class LessonDeleteView(DestroyAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated, IsBuyer]
+    permission_classes = [IsAuthenticated, IsBuyer, IsModerator]
 
 
 class PaymentListView(ListAPIView):
