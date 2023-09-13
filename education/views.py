@@ -6,8 +6,9 @@ from rest_framework.generics import RetrieveAPIView, DestroyAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from education.models import Course, Lesson, Payment
+from education.paginators import Pagination
 from education.serializers import CourseSerializer, LessonSerializer, LessonDetailSerializer, CourseDetailSerializer, \
-    LessonListSerializer, CourseListSerializer, PaymentListSerializer, PaymentSerializer
+    LessonListSerializer, CourseListSerializer, PaymentListSerializer, PaymentSerializer, SubscriptionSerializer
 from users.permissions import IsBuyer, IsModerator
 
 
@@ -15,6 +16,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseDetailSerializer
     permission_classes = [IsAuthenticated, IsBuyer | IsModerator]
     queryset = Course.objects.annotate(lessons_count=Count('lesson'))
+    pagination_class = Pagination
     default_serializer = CourseSerializer
     serializers = {
         'list': CourseListSerializer,
@@ -28,6 +30,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 class LessonListView(ListAPIView):
     serializer_class = LessonListSerializer
     queryset = Lesson.objects.all()
+    pagination_class = Pagination
     permission_classes = [IsAuthenticated]
 
 
@@ -58,6 +61,7 @@ class LessonDeleteView(DestroyAPIView):
 class PaymentListView(ListAPIView):
     serializer_class = PaymentListSerializer
     queryset = Payment.objects.all()
+    pagination_class = Pagination
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ('paid_course', 'paid_lesson', 'payment_method')
     ordering_fields = ('payment_date',)
@@ -86,3 +90,13 @@ class PaymentDeleteView(DestroyAPIView):
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()
     permission_classes = [IsAuthenticated, IsModerator]
+
+
+class SubscriptionCreateAPIView(CreateAPIView):
+    serializer_class = SubscriptionSerializer
+    queryset = Lesson.objects.all()
+
+
+class SubscriptionDestroyAPIView(DestroyAPIView):
+    serializer_class = SubscriptionSerializer
+    queryset = Lesson.objects.all()

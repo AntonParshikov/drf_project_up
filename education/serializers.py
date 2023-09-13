@@ -2,7 +2,8 @@ from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField, IntegerField
 from rest_framework.relations import SlugRelatedField
 
-from education.models import Course, Lesson, Payment
+from education.models import Course, Lesson, Payment, Subscription
+from education.validators import VideoValidator
 from users.models import User
 
 
@@ -34,6 +35,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
+        validators = [VideoValidator(field='link')]
         fields = ('pk', 'title', 'preview', 'link', 'course_lesson', 'buyer')
 
 
@@ -43,11 +45,12 @@ class LessonListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lesson
+        validators = [VideoValidator(field='link')]
         fields = ('pk', 'title', 'preview', 'link', 'course_lesson', 'buyer')
 
 
 class LessonDetailSerializer(serializers.ModelSerializer):
-    course_lesson = CourseSerializer()
+    course_lesson = SlugRelatedField(slug_field='title', queryset=Course.objects.all())
     count_lesson_with_same_course = SerializerMethodField()
 
     def get_count_lesson_with_same_course(self, lesson):
@@ -55,6 +58,7 @@ class LessonDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lesson
+        validators = [VideoValidator(field='link')]
         fields = ('pk', 'title', 'preview', 'description', 'link', 'course_lesson', 'count_lesson_with_same_course')
 
 
@@ -72,3 +76,9 @@ class PaymentListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ('pk', 'user', 'payment_date', 'paid_course', 'paid_lesson', 'payment_amount', 'payment_method')
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = '__all__'

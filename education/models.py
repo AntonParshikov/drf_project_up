@@ -7,6 +7,7 @@ class Course(models.Model):
     title = models.CharField(max_length=100, verbose_name='название')
     preview = models.ImageField(upload_to='education/', **NULLABLE, verbose_name='превью')
     description = models.TextField(**NULLABLE, verbose_name='описание')
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, **NULLABLE, verbose_name='Покупатель курса')
 
     def __str__(self):
         return f'{self.title}'
@@ -46,3 +47,16 @@ class Payment(models.Model):
     class Meta:
         verbose_name = 'Платеж'
         verbose_name_plural = 'Платежи'
+
+
+class Subscription(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='Курс')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
+    status = models.BooleanField(default=True, verbose_name='Статус подписки')
+
+    def __str__(self):
+        return f'{self.user} - {self.course}'
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
