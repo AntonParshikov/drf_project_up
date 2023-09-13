@@ -50,7 +50,7 @@ class LessonListSerializer(serializers.ModelSerializer):
 
 
 class LessonDetailSerializer(serializers.ModelSerializer):
-    course_lesson = CourseSerializer()
+    course_lesson = SlugRelatedField(slug_field='title', queryset=Course.objects.all())
     count_lesson_with_same_course = SerializerMethodField()
 
     def get_count_lesson_with_same_course(self, lesson):
