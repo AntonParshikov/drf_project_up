@@ -78,6 +78,12 @@ class PaymentListSerializer(serializers.ModelSerializer):
         fields = ('pk', 'user', 'payment_date', 'paid_course', 'paid_lesson', 'payment_amount', 'payment_method')
 
 
+class PaymentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ('course',)
+
+
 class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
