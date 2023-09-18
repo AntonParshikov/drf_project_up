@@ -8,6 +8,7 @@ class Course(models.Model):
     preview = models.ImageField(upload_to='education/', **NULLABLE, verbose_name='превью')
     description = models.TextField(**NULLABLE, verbose_name='описание')
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, **NULLABLE, verbose_name='Покупатель курса')
+    price = models.IntegerField(default=10000, verbose_name='стоимость курса')
 
     def __str__(self):
         return f'{self.title}'
@@ -34,12 +35,23 @@ class Lesson(models.Model):
 
 
 class Payment(models.Model):
+    CARD = "Безналичный"
+    CASH = "Наличные"
+
+    PAYMENT_METHOD = [
+        (CARD, "Безналичный"),
+        (CASH, "Наличные"),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
-    payment_date = models.DateField(verbose_name='Дата оплаты')
+    payment_date = models.DateField(**NULLABLE, verbose_name='Дата оплаты')
     paid_course = models.ForeignKey(Course, on_delete=models.CASCADE, **NULLABLE, verbose_name='Оплаченный курс')
     paid_lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, **NULLABLE, verbose_name='Оплаченный урок')
-    payment_amount = models.PositiveIntegerField('Сумма оплаты')
-    payment_method = models.CharField(max_length=100, **NULLABLE, verbose_name='Способ оплаты')
+    payment_amount = models.PositiveIntegerField(verbose_name='Сумма оплаты')
+    payment_method = models.CharField(choices=PAYMENT_METHOD, default=CARD, max_length=100, **NULLABLE,
+                                      verbose_name='Способ оплаты')
+    is_paid = models.BooleanField(default=False, verbose_name="оплачено")
+    payment_intent_id = models.CharField(default='NULL', max_length=100, verbose_name="id_платежа")
 
     def __str__(self):
         return f'{self.user}: {self.paid_course} - {self.payment_amount}'
