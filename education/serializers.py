@@ -3,6 +3,7 @@ from rest_framework.fields import SerializerMethodField, IntegerField
 from rest_framework.relations import SlugRelatedField
 
 from education.models import Course, Lesson, Payment, Subscription
+from education.services import retrieve_payment, create_payment, make_payment
 from education.validators import VideoValidator
 from users.models import User
 
@@ -65,7 +66,7 @@ class LessonDetailSerializer(serializers.ModelSerializer):
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ('pk', 'user', 'payment_date', 'paid_course', 'paid_lesson', 'payment_amount', 'payment_method')
+        fields = '__all__'
 
 
 class PaymentListSerializer(serializers.ModelSerializer):
@@ -75,13 +76,45 @@ class PaymentListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Payment
-        fields = ('pk', 'user', 'payment_date', 'paid_course', 'paid_lesson', 'payment_amount', 'payment_method')
+        fields = '__all__'
+
+
+class PaymentRetrieveSerializer(serializers.ModelSerializer):
+    payment_status = serializers.SerializerMethodField()
+
+    def get_payment_status(self, instance):
+        return retrieve_payment(instance.payment_intent_id)
+
+    class Meta:
+        model = Payment
+        fields = "__all__"
 
 
 class PaymentCreateSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        validated_data['payment_intent_id'] = create_payment(int(validated_data.get('payment_amount')))
+        payment = Payment.objects.create(**validated_data)
+        return payment
+
     class Meta:
         model = Payment
-        fields = ('course',)
+        fields = "__all__"
+
+
+class PaymentUpdateSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        payment = make_payment(instance.payment_intent_id)
+        if payment == 'succeeded':
+            instance.is_paid = True
+            instance.save()
+            return instance
+        else:
+            return instance
+
+    class Meta:
+        model = Payment
+        fields = "__all__"
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):

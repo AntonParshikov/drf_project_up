@@ -2,16 +2,15 @@ import stripe
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics, status
-from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import RetrieveAPIView, DestroyAPIView, ListAPIView, UpdateAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticated
-from config import settings
 from education.models import Course, Lesson, Payment
 from education.paginators import Pagination
 from education.serializers import CourseSerializer, LessonSerializer, LessonDetailSerializer, CourseDetailSerializer, \
-    LessonListSerializer, CourseListSerializer, PaymentListSerializer, PaymentSerializer, SubscriptionSerializer
-from education.services import checkout_session, create_payment
+    LessonListSerializer, CourseListSerializer, PaymentListSerializer, PaymentSerializer, SubscriptionSerializer, \
+    PaymentRetrieveSerializer, PaymentCreateSerializer
+# from education.services import checkout_session, create_payment
 from users.permissions import IsBuyer, IsModerator
 
 
@@ -84,33 +83,27 @@ class PaymentListView(ListAPIView):
 
 
 class PaymentDetailView(RetrieveAPIView):
-    serializer_class = PaymentSerializer
+    serializer_class = PaymentRetrieveSerializer
     queryset = Payment.objects.all()
     permission_classes = [IsAuthenticated, IsModerator]
 
-    def post(self, request, *args, **kwargs):
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        # payment_intent = stripe.PaymentIntent.retrieve("pi_3Nqb0gHueFEAlSdc1iITeBl7")
-        payment_intent = stripe.PaymentIntent.retrieve(checkout_session)
-        return Response(payment_intent)
-
 
 class PaymentCreateView(CreateAPIView):
-    serializer_class = PaymentSerializer
+    serializer_class = PaymentCreateSerializer
     queryset = Payment.objects.all()
     permission_classes = [IsAuthenticated, IsBuyer, IsModerator]
 
-    def post(self, request, *args, **kwargs):
-        """Создание платежа"""
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        session = checkout_session(
-            paid_course=serializer.validated_data['paid_course'],
-            user=self.request.user
-        )
-        create_payment(paid_course=serializer.validated_data['paid_course'],
-                       user=self.request.user)
-        return Response({'id': session['id']}, status=status.HTTP_201_CREATED)
+# def post(self, request, *args, **kwargs):
+#     """Создание платежа"""
+#     serializer = self.get_serializer(data=request.data)
+#     serializer.is_valid(raise_exception=True)
+#     session = checkout_session(
+#         paid_course=serializer.validated_data['paid_course'],
+#         user=self.request.user
+#     )
+#     create_payment(paid_course=serializer.validated_data['paid_course'],
+#                    user=self.request.user)
+#     return Response({'id': session['id']}, status=status.HTTP_201_CREATED)
 
 
 class SubscriptionCreateAPIView(generics.CreateAPIView):
