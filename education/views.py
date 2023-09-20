@@ -12,13 +12,15 @@ from education.serializers import CourseSerializer, LessonSerializer, LessonDeta
     PaymentRetrieveSerializer, PaymentCreateSerializer
 # from education.services import checkout_session, create_payment
 from users.permissions import IsBuyer, IsModerator
+from education.tasks import send_mail_about_update
+from rest_framework.response import Response
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     """ Viewset for course"""
 
     serializer_class = CourseDetailSerializer
-    permission_classes = [IsAuthenticated, IsBuyer | IsModerator]
+    permission_classes = [IsAuthenticated]
     queryset = Course.objects.annotate(lessons_count=Count('lesson'))
     pagination_class = Pagination
     default_serializer = CourseSerializer
@@ -29,6 +31,10 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         return self.serializers.get(self.action, self.default_serializer)
+
+    def update(self, request, *args, **kwargs):
+        send_mail_about_update.delay(kwargs['pk'])
+        return super().update(request, *args, **kwargs)
 
 
 class LessonListView(ListAPIView):
@@ -92,23 +98,6 @@ class PaymentCreateView(CreateAPIView):
     serializer_class = PaymentCreateSerializer
     queryset = Payment.objects.all()
     permission_classes = [IsAuthenticated, IsBuyer, IsModerator]
-
-# def post(self, request, *args, **kwargs):
-#     """Создание платежа"""
-#     serializer = self.get_serializer(data=request.data)
-#     serializer.is_valid(raise_exception=True)
-#     session = checkout_session(
-#         paid_course=serializer.validated_data['paid_course'],
-#         user=self.request.user
-#     )
-#     create_payment(paid_course=serializer.validated_data['paid_course'],
-#                    user=self.request.user)
-#     return Response({'id': session['id']}, status=status.HTTP_201_CREATED)
-
-
-class SubscriptionCreateAPIView(generics.CreateAPIView):
-    serializer_class = SubscriptionSerializer
-    queryset = Lesson.objects.all()
 
 
 class PaymentUpdateView(UpdateAPIView):

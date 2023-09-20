@@ -9,6 +9,7 @@ class Course(models.Model):
     description = models.TextField(**NULLABLE, verbose_name='описание')
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, **NULLABLE, verbose_name='Покупатель курса')
     price = models.IntegerField(default=10000, verbose_name='стоимость курса')
+    updated_at = models.DateTimeField(verbose_name='время обновления', **NULLABLE)
 
     def __str__(self):
         return f'{self.title}'

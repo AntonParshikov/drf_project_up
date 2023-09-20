@@ -11,7 +11,15 @@ from users.models import User
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ('title', 'preview', 'description')
+        fields = ('title', 'preview', 'description', 'updated_at')
+
+    def get_is_subscribed(self, instance):
+        user = self.context['request'].user
+
+        if user.is_authenticated:
+            if Subscription.objects.filter(user=user, course=instance).exists():
+                return True
+        return False
 
 
 class CourseListSerializer(serializers.ModelSerializer):
@@ -19,7 +27,7 @@ class CourseListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ('pk', 'title', 'description', 'lessons_count')
+        fields = ('pk', 'title', 'description', 'lessons_count', 'updated_at')
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
@@ -70,9 +78,13 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 
 class PaymentListSerializer(serializers.ModelSerializer):
+    payment_status = serializers.SerializerMethodField()
     user = SlugRelatedField(slug_field='email', queryset=User.objects.all())
     paid_course = SlugRelatedField(slug_field='title', queryset=Course.objects.all())
     paid_lesson = SlugRelatedField(slug_field='title', queryset=Lesson.objects.all())
+
+    def get_payment_status(self, instance):
+        return retrieve_payment(instance.payment_intent_id)
 
     class Meta:
         model = Payment
