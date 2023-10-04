@@ -89,7 +89,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('NAME_DB'),
         'USER': os.getenv('USER_DB'),
-        'PASSWORD': os.getenv('DB_PASSWORD')
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': 'db'
     }
 }
 
@@ -156,8 +157,8 @@ CORS_ALLOW_ALL_ORIGINS = False
 
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = 'redis://redis :6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis :6379/0'
 CELERY_TIMEZONE = 'Europe/Moscow'
 
 CELERY_BEAT_SCHEDULE = {
