@@ -6,6 +6,11 @@ services:
     image: redis:latest
     ports:
       - '6379:6379'
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   db:
     image: postgres
@@ -39,10 +44,10 @@ services:
   celery:
     build: .
     tty: true
-    command: celery -A config worker -l info -P eventlet
+    command: celery -A config worker -l INFO --loglevel warning
     depends_on:
-      - redis
-      - app
+      redis:
+        condition: service_healthy
 
   celery_beat:
     build: .
